@@ -12,13 +12,23 @@ from sqlalchemy.orm import exc
 from sqlalchemy.exc import SQLAlchemyError
 import sqlalchemy
 
-from odk2gn.odk_api import ODKSchema, get_submissions, update_review_state, client
+from odk2gn.odk_api import (
+    ODKSchema,
+    get_submissions,
+    update_review_state,
+    client,
+    update_form_attachment,
+)
 from odk2gn.gn2_utils import to_csv, get_taxon_list, get_observer_list
 from pyodk.client import Client
 from datetime import datetime
 from geonature.utils.env import DB
 from geonature.utils.config import config as geonature_config
-from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes, CorTaxrefNomenclature
+from pypnnomenclature.models import (
+    TNomenclatures,
+    BibNomenclaturesTypes,
+    CorTaxrefNomenclature,
+)
 from geonature.core.gn_meta.models import TDatasets
 from pypnusershub.db.models import UserList, User
 from geonature.core.users.models import VUserslistForallMenu
@@ -41,7 +51,11 @@ def get_id_taxon_liste(code_liste):
     Return: id_liste int
     """
 
-    id = DB.session.query(BibListes.id_liste).filter(BibListes.code_liste == code_liste).first()
+    id = (
+        DB.session.query(BibListes.id_liste)
+        .filter(BibListes.code_liste == code_liste)
+        .first()
+    )
     return id
 
 
@@ -52,7 +66,11 @@ def get_id_observer_liste(code_liste):
     code_liste -- code string for the list
     Return: id_liste int
     """
-    id = DB.session.query(UserList.id_liste).filter(UserList.code_liste == code_liste).first()
+    id = (
+        DB.session.query(UserList.id_liste)
+        .filter(UserList.code_liste == code_liste)
+        .first()
+    )
     return id
 
 
@@ -69,9 +87,9 @@ def get_nomenclatures():
         "COUNTING_TYPE",
     ]
     res = []
-    q = TNomenclatures.query.join(TNomenclatures.nomenclature_type, aliased=True).filter(
-        BibNomenclaturesTypes.mnemonique.in_(nomenclatures)
-    )
+    q = TNomenclatures.query.join(
+        TNomenclatures.nomenclature_type, aliased=True
+    ).filter(BibNomenclaturesTypes.mnemonique.in_(nomenclatures))
     tab = []
     data = q.all()
     for d in data:
@@ -260,12 +278,16 @@ def update_priority_flora_db(project_id, form_id):
             )
             # habitat : all the information about the habitat of the flora
             habitat = ap["habitat"]
-            t_ap.id_nomenclature_habitat = nomenclature_to_int(habitat["id_nomenclature_habitat"])
+            t_ap.id_nomenclature_habitat = nomenclature_to_int(
+                habitat["id_nomenclature_habitat"]
+            )
             t_ap.favorable_status_percent = habitat["favorable_status_percent"]
             t_ap.id_nomenclature_threat_level = get_nomenclature_id(
                 "THREAT_LEVEL", habitat["threat_level"]
             )
-            t_ap.id_nomenclature_phenology = nomenclature_to_int(ap["id_nomenclature_phenology"])
+            t_ap.id_nomenclature_phenology = nomenclature_to_int(
+                ap["id_nomenclature_phenology"]
+            )
             # frequency : how the frequency was estimated
             frequency_est = ap["frequency_est"]
             t_ap.id_nomenclature_frequency_method = nomenclature_to_int(
@@ -327,3 +349,10 @@ def update_priority_flora_db(project_id, form_id):
             log.error(str(e))
             update_review_state(project_id, form_id, sub["__id"], "hasIssues")
             DB.session.rollback()
+
+
+def upgrade_pf(project_id, form_id):
+    log.info("--- Start upgrade form for priority flora ---")
+    files = write_files()
+    update_form_attachment(project_id, form_id, files)
+    log.info("--- Done ---")

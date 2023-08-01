@@ -18,7 +18,7 @@ setuptools.setup(
     entry_points={
         "gn_odk_contrib": [
             "synchronize=odk_flore_prioritaire.main:synchronize",
-            "upgrade-odk-form=odk_flore_prioritaire.main:upgrade_odk_form",
+            "upgrade_odk_form=odk_flore_prioritaire.main:upgrade_odk_form",
         ]
     },
     classifiers=[

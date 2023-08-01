@@ -1,14 +1,13 @@
 import click
-from odk_flore_prioritaire.odk_methods import update_priority_flora_db, write_files
-from odk2gn.blueprint import synchronize, upgrade_odk_form
-from odk2gn.odk_api import update_form_attachment
+from odk_flore_prioritaire.odk_methods import update_priority_flora_db, upgrade_pf
+
 from geonature.app import create_app
 import logging
 
 log = logging.getLogger("app")
 
 
-@synchronize.command(name="flore-prio")
+@click.command(name="flore-prio")
 @click.option("--project_id", required=True, type=int)
 @click.option("--form_id", required=True, type=str)
 def synchronize(project_id, form_id):
@@ -24,7 +23,7 @@ def synchronize(project_id, form_id):
     log.info("--- Done ---")
 
 
-@upgrade_odk_form.command(name="flore-prio")
+@click.command(name="flore-prio")
 @click.option("--project_id", required=True, type=int)
 @click.option("--form_id", required=True, type=str)
 def upgrade_odk_form(project_id, form_id):
@@ -34,8 +33,4 @@ def upgrade_odk_form(project_id, form_id):
     project_id -- int, the id of the odk project
     form_id -- string, the form_id defined on the form
     """
-
-    log.info("--- Start upgrade form for priority flora ---")
-    files = write_files()
-    update_form_attachment(project_id, form_id, files)
-    log.info("--- Done ---")
+    upgrade_pf(project_id, form_id)
