@@ -1,7 +1,7 @@
 import pytest, csv
 import uuid
 import datetime
-from odk_flore_proritaire.src.odk_flore_prioritaire.odk_methods import to_wkt
+from odk_flore_prioritaire.odk_methods import to_wkt
 from geonature.utils.env import db
 from geonature import create_app
 from geonature.core.gn_meta.models import TDatasets
