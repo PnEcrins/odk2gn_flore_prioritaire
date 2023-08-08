@@ -14,7 +14,7 @@ Comme ODK2GN, ce sous-module s'installe dans l'environnement virtuel de GeoNatur
 # Activation du virtual env de GeoNature
 source <path_vers_gn>/backend/venv/bin/activate
 # Installation 
-pip install -e . -r requirements.txt
+pip install -e . 
 ```
 ## Configuration : 
 

@@ -6,7 +6,7 @@ import json
 import geojson
 from gn_module_priority_flora.models import TZprospect, TApresence, CorApPerturbation
 
-from shapely.geometry import shape
+from shapely.geometry import shape, set_srid
 import flatdict
 from sqlalchemy.orm import exc
 from sqlalchemy.exc import SQLAlchemyError
@@ -150,6 +150,7 @@ def to_wkt(geom):
     s = json.dumps(geom)
     g1 = geojson.loads(s)
     g2 = shape(g1)
+    g2 = set_srid(g2, 4326)
     return g2.wkt
 
 
