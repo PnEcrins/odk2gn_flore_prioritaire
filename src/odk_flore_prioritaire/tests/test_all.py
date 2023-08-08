@@ -9,6 +9,7 @@ from odk_flore_prioritaire.tests.fixtures import (
     observers_and_list,
     plant,
     type_nomenclature,
+    pf_sub,
 )
 
 from odk2gn.blueprint import (
@@ -25,8 +26,7 @@ from odk2gn.gn2_utils import (
 
 @pytest.mark.usefixtures("temporary_transaction")
 class TestCommand:
-    def test_synchronize_flore_prio(self, mocker, app, pf_sub):
-        mocker.patch("odk2gn.blueprint.create_app", return_value=app)
+    def test_synchronize_flore_prio(self, mocker, pf_sub):
         mocker.patch(
             "odk_flore_prioritaire.odk_methods.get_submissions",
             return_value=pf_sub,
@@ -40,14 +40,14 @@ class TestCommand:
 
         assert result.exit_code == 0
 
-    def test_upgrade_priority_flora(self, mocker, app):
-        mocker.patch("odk2gn.blueprint.update_form_attachment")
-        mocker.patch("odk2gn.blueprint.create_app", return_value=app)
+    def test_upgrade_priority_flora(self, mocker):
+        mocker.patch("odk_flore_prioritaire.odk_methods.update_form_attachment")
         runner = CliRunner()
         result = runner.invoke(
             upgrade_odk_form,
             ["flore-prio", "--project_id", 99, "--form_id", "bidon"],
         )
+        print(result.stdout)
         assert result.exit_code == 0
 
 
