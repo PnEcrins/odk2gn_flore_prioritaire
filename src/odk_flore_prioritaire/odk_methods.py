@@ -4,9 +4,13 @@ import uuid
 import csv
 import json
 import geojson
+from geoalchemy2.shape import from_shape
+
+
 from gn_module_priority_flora.models import TZprospect, TApresence, CorApPerturbation
 
-from shapely.geometry import shape, set_srid
+from shapely.geometry import shape
+
 import flatdict
 from sqlalchemy.orm import exc
 from sqlalchemy.exc import SQLAlchemyError
@@ -139,7 +143,7 @@ def nomenclature_to_int(val):
     return val
 
 
-def to_wkt(geom):
+def to_wkb(geom):
     """reformats the geographic data as a WKT
 
     Keyword arguments:
@@ -150,8 +154,7 @@ def to_wkt(geom):
     s = json.dumps(geom)
     g1 = geojson.loads(s)
     g2 = shape(g1)
-    g2 = set_srid(g2, 4326)
-    return g2.wkt
+    return from_shape(g2, srid=4326)
 
 
 def format_coords(geom):
@@ -243,7 +246,7 @@ def update_priority_flora_db(project_id, form_id):
         zp.id_dataset = id_dataset
         # format the geographical coordinates in WKT with no z coordinate
         format_coords(sub["zp_geom_4326"])
-        zp.geom_4326 = to_wkt(sub["zp_geom_4326"])
+        zp.geom_4326 = to_wkb(sub["zp_geom_4326"])
         zp.cd_nom = sub["cd_nom"]
         zp.date_min = sub["date_min"]
         zp.date_max = sub["date_min"]
@@ -268,7 +271,7 @@ def update_priority_flora_db(project_id, form_id):
                 ap_geom_4326 = ap["ap_geom_shape"]
                 area = ap["situation"]["ap_area_shape"]
             format_coords(ap_geom_4326)
-            t_ap.geom_4326 = to_wkt(ap_geom_4326)
+            t_ap.geom_4326 = to_wkb(ap_geom_4326)
             t_ap.area = area
             t_ap.altitude_min = None
             t_ap.altitude_max = None
