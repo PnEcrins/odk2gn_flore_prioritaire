@@ -1,7 +1,6 @@
 import click
 from odk_flore_prioritaire.odk_methods import update_priority_flora_db, upgrade_pf
 
-from geonature.app import create_app
 import logging
 
 log = logging.getLogger("app")

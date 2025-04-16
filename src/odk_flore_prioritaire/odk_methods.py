@@ -7,25 +7,18 @@ import geojson
 from geoalchemy2.shape import from_shape
 
 
-from gn_module_priority_flora.models import TZprospect, TApresence, CorApPerturbation
+from gn_module_priority_flora.models import TZprospect, TApresence
 
 from shapely.geometry import shape
 
-import flatdict
-from sqlalchemy.orm import exc
 from sqlalchemy.exc import SQLAlchemyError
-import sqlalchemy
 
 from odk2gn.odk_api import (
-    ODKSchema,
     get_submissions,
     update_review_state,
-    client,
     update_form_attachment,
 )
 from odk2gn.gn2_utils import to_csv, get_taxon_list, get_observer_list
-from pyodk.client import Client
-from datetime import datetime
 from geonature.utils.env import DB
 from geonature.utils.config import config as geonature_config
 from pypnnomenclature.models import (
@@ -35,13 +28,8 @@ from pypnnomenclature.models import (
 )
 from geonature.core.gn_meta.models import TDatasets
 from pypnusershub.db.models import UserList, User
-from geonature.core.users.models import VUserslistForallMenu
 
-from apptax.taxonomie.models import BibListes, CorNomListe, Taxref, BibNoms
-
-from geonature.app import create_app
-from geonature.utils.env import BACKEND_DIR
-from geonature.core.gn_commons.models import BibTablesLocation
+from apptax.taxonomie.models import BibListes
 
 
 log = logging.getLogger("app")
@@ -55,12 +43,14 @@ def get_id_taxon_liste(code_liste):
     Return: id_liste int
     """
 
-    id = (
+    res = (
         DB.session.query(BibListes.id_liste)
         .filter(BibListes.code_liste == code_liste)
         .first()
     )
-    return id
+    if res:
+        return res[0]
+    return None
 
 
 def get_id_observer_liste(code_liste):
@@ -70,12 +60,14 @@ def get_id_observer_liste(code_liste):
     code_liste -- code string for the list
     Return: id_liste int
     """
-    id = (
+    res = (
         DB.session.query(UserList.id_liste)
         .filter(UserList.code_liste == code_liste)
         .first()
     )
-    return id
+    if res:
+        return res[0]
+    return None
 
 
 def get_nomenclatures():
@@ -215,7 +207,9 @@ def get_nomenclature_id(type_mnemonique, cd_nomenclature):
         .filter(TNomenclatures.cd_nomenclature == cd_nomenclature)
         .first()
     )
-    return id
+    if id:
+        return id[0]
+    return None
 
 
 def get_user(id_role):
@@ -359,4 +353,6 @@ def upgrade_pf(project_id, form_id):
     log.info("--- Start upgrade form for priority flora ---")
     files = write_files()
     update_form_attachment(project_id, form_id, files)
+    log.info("--- Done ---")
+
     log.info("--- Done ---")

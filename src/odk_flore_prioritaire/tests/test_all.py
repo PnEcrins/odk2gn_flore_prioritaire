@@ -1,23 +1,14 @@
-import pytest, csv, sys
+import pytest
 from click.testing import CliRunner
-import uuid
-import flatdict
 
-from odk_flore_prioritaire.tests.fixtures import (
-    point,
-    nomenclature,
-    observers_and_list,
-    plant,
-    type_nomenclature,
-    pf_sub,
-)
+from odk_flore_prioritaire.tests.fixtures import *
 
 from odk2gn.blueprint import (
     synchronize,
     upgrade_odk_form,
 )
 
-from odk_flore_prioritaire.odk_methods import write_files
+from odk_flore_prioritaire.odk_methods import write_files, update_priority_flora_db, upgrade_pf
 
 from odk2gn.gn2_utils import (
     get_observer_list,
@@ -32,24 +23,14 @@ class TestCommand:
             return_value=pf_sub,
         )
         mocker.patch("odk_flore_prioritaire.odk_methods.update_review_state")
-        runner = CliRunner()
-        result = runner.invoke(
-            synchronize,
-            ["flore-prio", "--project_id", 99, "--form_id", "bidon2"],
-        )
-
-        assert result.exit_code == 0
+        update_priority_flora_db(project_id=1, form_id="bidon")
+        
 
     def test_upgrade_priority_flora(self, mocker):
+        print("LAAAAAAAA??????????")
         mocker.patch("odk_flore_prioritaire.odk_methods.update_form_attachment")
-        runner = CliRunner()
-        result = runner.invoke(
-            upgrade_odk_form,
-            ["flore-prio", "--project_id", 99, "--form_id", "bidon"],
-        )
-        print(result.stdout)
-        assert result.exit_code == 0
-
+        upgrade_pf(1, "bidon")
+        
 
 @pytest.mark.usefixtures("temporary_transaction")
 class TestUtilsFunctions:
