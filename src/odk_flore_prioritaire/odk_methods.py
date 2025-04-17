@@ -229,15 +229,15 @@ def update_priority_flora_db(project_id, form_id):
     # gets the new ODK submissions
     form_data = get_submissions(project_id, form_id)
     # gets the dataset id, which is fixed
-    id_dataset = (
-        DB.session.query(TDatasets.id_dataset)
+    dataset = (
+        DB.session.query(TDatasets)
         .filter(TDatasets.dataset_shortname == "PRIORITY_FLORA")
         .first()
     )
     for sub in form_data:
         # create and seed the prospection zone object
         zp = TZprospect()
-        zp.id_dataset = id_dataset
+        zp.id_dataset = dataset.id_dataset
         # format the geographical coordinates in WKT with no z coordinate
         format_coords(sub["zp_geom_4326"])
         zp.geom_4326 = to_wkb(sub["zp_geom_4326"])
